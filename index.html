@@ -11,32 +11,33 @@
         .app-container { width: 100%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; padding-bottom: 20px; }
 
         .header { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 20px 16px; text-align: center; }
-        .header h1 { font-size: 22px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .header h1 { font-size: 22px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px; }
         .header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
 
-        /* ====== 左右搖擺 Animation ====== */
-        @keyframes swingAnimation {
-            0% { transform: rotate(-8deg); }
-            50% { transform: rotate(8deg); }
-            100% { transform: rotate(-8deg); }
-        }
-
+        /* ====== 可愛女孩 Avatar（純 SVG） ====== */
         .avatar-container {
             display: inline-block;
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             animation: swingAnimation 2s ease-in-out infinite;
             transform-origin: bottom center;
             vertical-align: middle;
+            flex-shrink: 0;
         }
-
-        .avatar-container img {
+        .avatar-container svg {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            display: block;
             border-radius: 50%;
+            background: #fff3e6;
             border: 2px solid white;
-            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        @keyframes swingAnimation {
+            0% { transform: rotate(-6deg); }
+            50% { transform: rotate(6deg); }
+            100% { transform: rotate(-6deg); }
         }
         /* ================================ */
 
@@ -55,6 +56,13 @@
         .filter-buttons { display: flex; gap: 8px; }
         .filter-buttons .btn { flex: 1; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid #ccc; background: white; cursor: pointer; }
         .filter-buttons .btn.active { background: #ee5a24; color: white; border-color: #ee5a24; }
+
+        /* ====== 總欠款摘要卡 ====== */
+        .summary-card { background: #fef9f0; border: 1px solid #fdebd0; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+        .summary-card .total-label { font-size: 13px; color: #888; }
+        .summary-card .total-amount { font-size: 24px; font-weight: bold; color: #ee5a24; }
+        .summary-card .summary-buttons { display: flex; gap: 8px; margin-top: 8px; width: 100%; }
+        .summary-card .summary-buttons .btn { padding: 6px 12px; font-size: 12px; width: auto; flex: 1; }
 
         .tab-bar { display: flex; background: #f8f9fa; border-bottom: 1px solid #eee; }
         .tab-btn { flex: 1; padding: 12px; text-align: center; font-weight: bold; font-size: 13px; color: #888; cursor: pointer; border: none; background: transparent; border-bottom: 3px solid transparent; }
@@ -118,16 +126,62 @@
 <body>
 
 <div class="app-container">
+    <!-- Header -->
     <div class="header">
         <h1>
+            <!-- 可愛長髮女孩 SVG Avatar -->
             <span class="avatar-container">
-                <img src="image_239e04.png" alt="Winnie Avatar">
-            </span> 
+                <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <circle cx="60" cy="60" r="58" fill="#FFF5E6"/>
+                    <!-- 頭髮（長髮） -->
+                    <path d="M30 45 Q28 20 45 12 Q60 6 75 12 Q92 20 90 45 Q88 70 82 90 Q78 100 70 105 Q60 110 50 105 Q42 100 38 90 Q32 70 30 45Z" fill="#8D6E3F"/>
+                    <!-- 頭髮陰影 -->
+                    <path d="M30 45 Q32 25 45 18 Q60 12 75 18 Q88 25 90 45 Q88 70 82 90 Q78 100 70 105 Q60 110 50 105 Q42 100 38 90 Q32 70 30 45Z" fill="#7A5C34" opacity="0.3"/>
+                    <!-- 臉 -->
+                    <ellipse cx="60" cy="52" rx="28" ry="30" fill="#FFE0BD"/>
+                    <!-- 眼睛 -->
+                    <ellipse cx="48" cy="48" rx="5" ry="6" fill="white"/>
+                    <ellipse cx="72" cy="48" rx="5" ry="6" fill="white"/>
+                    <circle cx="48" cy="48" r="3" fill="#3D2B1F"/>
+                    <circle cx="72" cy="48" r="3" fill="#3D2B1F"/>
+                    <!-- 眼珠反光 -->
+                    <circle cx="49" cy="46" r="1.2" fill="white"/>
+                    <circle cx="73" cy="46" r="1.2" fill="white"/>
+                    <!-- 腮紅 -->
+                    <ellipse cx="38" cy="58" rx="6" ry="4" fill="#FFB6C1" opacity="0.6"/>
+                    <ellipse cx="82" cy="58" rx="6" ry="4" fill="#FFB6C1" opacity="0.6"/>
+                    <!-- 微笑 -->
+                    <path d="M48 62 Q52 68 60 68 Q68 68 72 62" stroke="#D4845A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <!-- 嘴巴 -->
+                    <path d="M52 64 Q60 72 68 64" stroke="#D4845A" stroke-width="2" fill="#FF8A80" stroke-linecap="round"/>
+                    <!-- 身體（紅色衫） -->
+                    <rect x="42" y="78" width="36" height="22" rx="6" fill="#FF6B6B"/>
+                    <!-- 衫領 -->
+                    <path d="M48 78 L54 84 L60 78 L66 84 L72 78" stroke="#E55555" stroke-width="2" fill="none"/>
+                    <!-- 手臂 -->
+                    <path d="M42 82 L28 92" stroke="#FFE0BD" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M78 82 L92 92" stroke="#FFE0BD" stroke-width="6" stroke-linecap="round"/>
+                    <!-- 碗（食飯） -->
+                    <ellipse cx="60" cy="100" rx="18" ry="6" fill="#F5F5F5" stroke="#DDD" stroke-width="1.5"/>
+                    <path d="M42 100 Q42 108 60 108 Q78 108 78 100" fill="#F5F5F5" stroke="#DDD" stroke-width="1.5"/>
+                    <!-- 碗入面嘅食物（麵條） -->
+                    <path d="M48 97 Q50 94 52 97 Q54 94 56 97 Q58 94 60 97 Q62 94 64 97 Q66 94 68 97 Q70 94 72 97" stroke="#D4A373" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <!-- 筷子 -->
+                    <line x1="64" y1="82" x2="54" y2="98" stroke="#8D6E3F" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="66" y1="82" x2="56" y2="98" stroke="#8D6E3F" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- 蒸氣 -->
+                    <path d="M48 76 Q46 68 50 62" stroke="#DDD" stroke-width="2" fill="none" opacity="0.6"/>
+                    <path d="M60 74 Q58 65 62 58" stroke="#DDD" stroke-width="2" fill="none" opacity="0.6"/>
+                    <path d="M72 76 Q70 68 74 62" stroke="#DDD" stroke-width="2" fill="none" opacity="0.6"/>
+                </svg>
+            </span>
             Winnie Pay 系統
         </h1>
         <p>欠款管理 · 朋友快速找數</p>
     </div>
 
+    <!-- 管理模式開關 -->
     <div class="mode-switch">
         <span class="label">👑 管理模式</span>
         <div class="toggle" id="modeToggle" onclick="toggleMode()">
@@ -138,9 +192,10 @@
 
     <div class="demo-note">
         ⚠️ 靜態預覽 · 資料儲存於記憶體（刷新消失）<br>
-        ✅ 揀朋友後預設顯示「未付」記錄
+        ✅ 揀朋友後預設顯示「未付」記錄，並自動加總欠款
     </div>
 
+    <!-- Filter Bar -->
     <div class="filter-bar">
         <select id="friendFilter" onchange="applyFilters()">
             <option value="">-</option>
@@ -155,16 +210,26 @@
         </div>
     </div>
 
+    <!-- Tab Navigation -->
     <div class="tab-bar">
         <button class="tab-btn active" data-tab="tab-records" onclick="switchTab('tab-records')">📋 欠款記錄</button>
         <button class="tab-btn hidden-tab" data-tab="tab-add" onclick="switchTab('tab-add')">➕ 新增欠款</button>
         <button class="tab-btn" data-tab="tab-friends" onclick="switchTab('tab-friends')">👥 朋友</button>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- TAB 1: 欠款記錄 -->
+    <!-- ============================================================ -->
     <div id="tab-records" class="tab-content active">
+        <!-- 總欠款摘要（由 JS 動態產生） -->
+        <div id="summaryContainer"></div>
+        <!-- 詳細記錄 -->
         <div id="recordList"></div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- TAB 2: 新增欠款 -->
+    <!-- ============================================================ -->
     <div id="tab-add" class="tab-content">
         <h2 style="font-size:18px; margin-bottom:12px;">➕ 新增欠款記錄</h2>
         <div class="form-group">
@@ -206,7 +271,7 @@
                 <option value="譚仔">譚仔</option>
                 <option value="其他（手動輸入）">其他（手動輸入）</option>
             </select>
-            <input type="text" id="debtRestaurantCustom" placeholder="請輸入餐廳名稱" style="margin-top:6px; display:none;" oninput="autoFillRestaurant()">
+            <input type="text" id="debtRestaurantCustom" placeholder="請輸入餐廳名稱" style="margin-top:6px; display:none;">
         </div>
         <div class="row">
             <div class="form-group">
@@ -225,6 +290,9 @@
         <button class="btn btn-success" onclick="addDebt()">✅ 新增記錄</button>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- TAB 3: 朋友管理 -->
+    <!-- ============================================================ -->
     <div id="tab-friends" class="tab-content">
         <h2 style="font-size:18px; margin-bottom:12px;">👥 朋友清單</h2>
         <div id="friendList"></div>
@@ -235,6 +303,9 @@
         </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- Modal -->
+    <!-- ============================================================ -->
     <div class="modal" id="paymentModal">
         <div class="modal-content">
             <h3>🏦 付款方式</h3>
@@ -255,9 +326,15 @@
 </div>
 
 <script>
+    // ============================================================
+    //  密碼及模式
+    // ============================================================
     const ADMIN_PASSWORD = 'Winnie';
     let isWinnieMode = false;
 
+    // ============================================================
+    //  資料
+    // ============================================================
     let friends = ['Peter', 'Mary', 'John', 'Winnie'];
     let debts = [
         { id: 1, name: 'Peter', date: '2026-07-10', restaurant: '吉野家', food: '牛肉飯', drink: '可樂', amount: 65.00, paid: false, receipt: null },
@@ -272,6 +349,9 @@
     let nextId = 9;
     let currentFilter = 'unpaid';
 
+    // ============================================================
+    //  管理模式
+    // ============================================================
     function toggleMode() {
         if (isWinnieMode) {
             isWinnieMode = false;
@@ -314,6 +394,9 @@
         applyFilters();
     }
 
+    // ============================================================
+    //  分頁切換
+    // ============================================================
     function switchTab(tabId) {
         if (tabId === 'tab-add' && !isWinnieMode) {
             alert('請先開啟管理模式');
@@ -325,6 +408,9 @@
         document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
     }
 
+    // ============================================================
+    //  篩選
+    // ============================================================
     function setFilter(filter) {
         currentFilter = filter;
         document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
@@ -333,21 +419,53 @@
         applyFilters();
     }
 
+    // ============================================================
+    //  顯示記錄 + 總欠款摘要
+    // ============================================================
     function applyFilters() {
         const selectedFriend = document.getElementById('friendFilter').value;
         const container = document.getElementById('recordList');
+        const summaryContainer = document.getElementById('summaryContainer');
 
         if (!selectedFriend) {
             container.innerHTML = '<p class="text-muted">請選擇朋友</p>';
+            summaryContainer.innerHTML = '';
             return;
         }
 
+        // 過濾
         let filtered = debts.filter(d => d.name === selectedFriend);
+        let unpaid = filtered.filter(d => !d.paid);
+
         if (currentFilter === 'unpaid') {
-            filtered = filtered.filter(d => !d.paid);
+            filtered = unpaid;
         }
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+        // ---- 顯示總欠款摘要（只限「未付」模式或「全部」模式但仍有未付） ----
+        const totalUnpaid = unpaid.reduce((sum, d) => sum + d.amount, 0);
+        if (totalUnpaid > 0) {
+            summaryContainer.innerHTML = `
+                <div class="summary-card">
+                    <div>
+                        <div class="total-label">💰 總欠款（未付）</div>
+                        <div class="total-amount">$${totalUnpaid.toFixed(2)}</div>
+                    </div>
+                    <div class="summary-buttons">
+                        <button class="btn btn-outline btn-sm" onclick="showPaymentModal()">💳 付款方式</button>
+                        <button class="btn btn-success btn-sm" onclick="sendWhatsAppTotal('${selectedFriend}', ${totalUnpaid})">💬 WhatsApp</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            summaryContainer.innerHTML = `
+                <div class="summary-card" style="background:#f0fdf4; border-color:#d1f2e1;">
+                    <span style="color:#27ae60; font-weight:bold;">✅ ${selectedFriend} 所有欠款已付清！</span>
+                </div>
+            `;
+        }
+
+        // ---- 顯示詳細記錄 ----
         if (filtered.length === 0) {
             container.innerHTML = '<p class="text-muted">沒有符合條件的記錄</p>';
             return;
@@ -384,6 +502,9 @@
         container.innerHTML = html;
     }
 
+    // ============================================================
+    //  標記已付 / 未付
+    // ============================================================
     function togglePaid(id) {
         const debt = debts.find(d => d.id === id);
         if (debt) {
@@ -392,12 +513,18 @@
         }
     }
 
+    // ============================================================
+    //  刪除記錄
+    // ============================================================
     function deleteDebt(id) {
         if (!confirm('確定刪除此記錄？')) return;
         debts = debts.filter(d => d.id !== id);
         applyFilters();
     }
 
+    // ============================================================
+    //  新增欠款
+    // ============================================================
     function addDebt() {
         if (!isWinnieMode) {
             alert('請先開啟管理模式');
@@ -459,6 +586,7 @@
         applyFilters();
     }
 
+    // 餐廳下拉控制
     document.addEventListener('DOMContentLoaded', function() {
         const sel = document.getElementById('debtRestaurant');
         const custom = document.getElementById('debtRestaurantCustom');
@@ -472,6 +600,9 @@
         });
     });
 
+    // ============================================================
+    //  OCR
+    // ============================================================
     async function handleReceiptUpload(input) {
         const file = input.files[0];
         if (!file) return;
@@ -553,6 +684,9 @@
         }
     }
 
+    // ============================================================
+    //  朋友管理
+    // ============================================================
     function addFriend() {
         if (!isWinnieMode) {
             alert('請先開啟管理模式');
@@ -562,19 +696,19 @@
         if (!name) return alert('請輸入姓名');
         if (friends.includes(name)) return alert('朋友已存在');
         friends.push(name);
-        
+
         const select = document.getElementById('friendFilter');
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
         select.appendChild(opt);
-        
+
         const debtorSelect = document.getElementById('debtorSelect');
         const opt2 = document.createElement('option');
         opt2.value = name;
         opt2.textContent = name;
         debtorSelect.appendChild(opt2);
-        
+
         document.getElementById('newFriendName').value = '';
         renderFriends();
         alert('✅ 已新增朋友');
@@ -585,6 +719,9 @@
         container.innerHTML = friends.map(f => `<div class="record-card"><span>${f}</span></div>`).join('');
     }
 
+    // ============================================================
+    //  收據檢視
+    // ============================================================
     function viewReceipt(dataUrl) {
         document.getElementById('receiptFullImage').src = dataUrl;
         document.getElementById('receiptModal').style.display = 'flex';
@@ -594,6 +731,9 @@
         document.getElementById('receiptModal').style.display = 'none';
     }
 
+    // ============================================================
+    //  付款方式 Modal
+    // ============================================================
     function showPaymentModal() {
         document.getElementById('paymentModal').style.display = 'flex';
     }
@@ -602,6 +742,9 @@
         document.getElementById('paymentModal').style.display = 'none';
     }
 
+    // ============================================================
+    //  WhatsApp 通知（單筆）
+    // ============================================================
     function sendWhatsApp(name, amount) {
         if (amount <= 0) {
             alert('金額無效');
@@ -612,6 +755,22 @@
         window.open(url, '_blank');
     }
 
+    // ============================================================
+    //  WhatsApp 通知（總額）
+    // ============================================================
+    function sendWhatsAppTotal(name, totalAmount) {
+        if (totalAmount <= 0) {
+            alert('沒有未付欠款');
+            return;
+        }
+        const msg = `我已付款全部欠款 $${totalAmount.toFixed(2)}，請確認 🙏`;
+        const url = `https://wa.me/85261866188?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+    }
+
+    // ============================================================
+    //  初始化
+    // ============================================================
     window.onload = function() {
         document.getElementById('debtDate').value = new Date().toISOString().split('T')[0];
         renderFriends();
