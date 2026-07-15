@@ -13,13 +13,11 @@
         .header { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 20px 16px; text-align: center; }
         .header h1 { font-size: 26px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
 
-        /* 可愛用餐卡通 Avatar（非 Chikawa） */
+        /* 靜態西餐 Logo（無動畫） */
         .avatar-container {
             display: inline-block;
             width: 56px;
             height: 56px;
-            animation: swingAnimation 2s ease-in-out infinite;
-            transform-origin: bottom center;
             vertical-align: middle;
             flex-shrink: 0;
         }
@@ -31,12 +29,6 @@
             background: #FFF8F0;
             border: 2px solid white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-        }
-
-        @keyframes swingAnimation {
-            0% { transform: rotate(-6deg); }
-            50% { transform: rotate(6deg); }
-            100% { transform: rotate(-6deg); }
         }
 
         .mode-switch { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fff; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
@@ -111,7 +103,6 @@
         .upload-area input[type="file"] { display: none; }
         .ocr-status { font-size: 12px; color: #888; margin-top: 4px; }
 
-        /* 用餐朋友 checkbox - 調整字型及顯示 */
         .participant-grid {
             display: flex;
             flex-wrap: wrap;
@@ -137,7 +128,6 @@
             flex-shrink: 0;
         }
 
-        /* 項目行內嘅享用者 checkbox */
         .item-row { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eaeaea; }
         .item-row .item-fields { display: flex; gap: 8px; flex-wrap: wrap; }
         .item-row .item-fields input { flex: 1; min-width: 60px; padding: 6px 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; }
@@ -170,39 +160,26 @@
 <div class="app-container">
     <div class="header">
         <h1>
-            <!-- 可愛用餐卡通（非 Chikawa） -->
+            <!-- 靜態西餐 Logo（刀叉 + 碟） -->
             <span class="avatar-container">
                 <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                    <!-- 背景 -->
                     <circle cx="60" cy="60" r="58" fill="#FFF8F0"/>
-                    <!-- 大碗 -->
-                    <ellipse cx="60" cy="85" rx="32" ry="12" fill="#E8D5B5" stroke="#C4A882" stroke-width="2"/>
-                    <path d="M28 85 C28 100 92 100 92 85" fill="#E8D5B5" stroke="#C4A882" stroke-width="2"/>
-                    <!-- 碗內湯汁 -->
-                    <ellipse cx="60" cy="82" rx="28" ry="9" fill="#FAD02C" opacity="0.6"/>
-                    <!-- 麵條（彎曲） -->
-                    <path d="M36 76 Q42 68 50 74 Q58 66 66 74 Q74 66 82 74 Q86 80 78 86 Q70 92 62 84 Q54 92 46 84 Q38 92 36 76Z" fill="#F5D6A8" stroke="#D4A373" stroke-width="2"/>
-                    <!-- 可愛笑臉蛋（主角） -->
-                    <circle cx="60" cy="68" r="16" fill="#FFF8E7" stroke="#D4A373" stroke-width="2"/>
-                    <circle cx="60" cy="68" r="10" fill="#FFD93D" stroke="#E8A83A" stroke-width="1.5"/>
-                    <!-- 蛋嘅笑眼 -->
-                    <path d="M54 65 Q58 60 62 65" stroke="#D4845A" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    <path d="M66 65 Q70 60 74 65" stroke="#D4845A" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    <!-- 微笑 -->
-                    <path d="M56 72 Q60 77 64 72" stroke="#D4845A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                    <!-- 腮紅 -->
-                    <ellipse cx="50" cy="70" rx="4" ry="3" fill="#FFB6C1" opacity="0.6"/>
-                    <ellipse cx="70" cy="70" rx="4" ry="3" fill="#FFB6C1" opacity="0.6"/>
-                    <!-- 筷子 -->
-                    <line x1="80" y1="58" x2="52" y2="84" stroke="#8D6E3F" stroke-width="3" stroke-linecap="round"/>
-                    <line x1="84" y1="58" x2="56" y2="84" stroke="#8D6E3F" stroke-width="3" stroke-linecap="round"/>
-                    <!-- 蒸氣 -->
-                    <path d="M44 54 Q42 46 48 40" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/>
-                    <path d="M60 52 Q58 42 64 36" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/>
-                    <path d="M76 54 Q74 46 80 40" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/>
-                    <!-- 小星星裝飾 -->
-                    <text x="32" y="34" font-size="10" fill="#FFD93D" opacity="0.7">✦</text>
-                    <text x="82" y="32" font-size="8" fill="#FFD93D" opacity="0.7">✦</text>
+                    <!-- 碟子 -->
+                    <ellipse cx="60" cy="72" rx="36" ry="10" fill="#E8E0D8" stroke="#C4B8A8" stroke-width="2"/>
+                    <ellipse cx="60" cy="72" rx="30" ry="6" fill="#F0EDE8" stroke="#D0C8B8" stroke-width="1.5"/>
+                    <!-- 叉子 -->
+                    <line x1="44" y1="38" x2="44" y2="72" stroke="#B0A090" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="38" y1="34" x2="44" y2="44" stroke="#B0A090" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="44" y1="34" x2="44" y2="44" stroke="#B0A090" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="50" y1="34" x2="44" y2="44" stroke="#B0A090" stroke-width="3" stroke-linecap="round"/>
+                    <!-- 刀 -->
+                    <line x1="76" y1="34" x2="72" y2="72" stroke="#C0B0A0" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M76 34 L80 40 L78 48 L76 34Z" fill="#C0B0A0"/>
+                    <!-- 叉子手柄裝飾 -->
+                    <rect x="40" y="58" width="8" height="4" rx="2" fill="#D0C0B0" opacity="0.6"/>
+                    <!-- 小星星 -->
+                    <text x="28" y="38" font-size="12" fill="#FFD93D" opacity="0.7">✦</text>
+                    <text x="82" y="38" font-size="10" fill="#FFD93D" opacity="0.7">✦</text>
                 </svg>
             </span>
             Winnie Pay
@@ -293,11 +270,11 @@
             <input type="text" id="debtRestaurantCustom" placeholder="請輸入餐廳名稱" style="margin-top:6px; display:none;">
         </div>
 
-        <!-- 用餐朋友（多選）- 預設全部唔剔選 -->
+        <!-- 用餐朋友（多選）- 預設全部勾選 -->
         <div class="form-group">
             <label>👥 用餐朋友（多選）</label>
             <div id="participantCheckboxes" class="participant-grid">
-                <!-- 動態由 JS 產生，預設唔剔選 -->
+                <!-- 動態由 JS 產生，預設全部剔選 -->
             </div>
         </div>
 
@@ -541,7 +518,7 @@
     }
 
     // ============================================================
-    //  管理用餐朋友 checkbox（預設唔剔選）
+    //  管理用餐朋友 checkbox（預設全部勾選）
     // ============================================================
     function renderParticipantCheckboxes() {
         const container = document.getElementById('participantCheckboxes');
@@ -551,17 +528,17 @@
             const cb = document.createElement('input');
             cb.type = 'checkbox';
             cb.value = name;
-            cb.checked = false; // 預設唔剔選
+            cb.checked = true; // 預設全部剔選
             cb.onchange = updateItemEaters;
             label.appendChild(cb);
             label.appendChild(document.createTextNode(name));
             container.appendChild(label);
         });
-        // 更新所有項目行的享用者列表
+        // 更新所有項目行的享用者列表（全部勾選）
         updateItemEaters();
     }
 
-    // 當用餐朋友選擇變更時，更新所有項目行的 eater checkboxes
+    // 當用餐朋友選擇變更時，更新所有項目行的 eater checkboxes（全部勾選）
     function updateItemEaters() {
         const checked = document.querySelectorAll('#participantCheckboxes input[type="checkbox"]:checked');
         const selected = Array.from(checked).map(cb => cb.value);
@@ -574,7 +551,7 @@
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.value = name;
-                cb.checked = false; // 項目內嘅享用者預設都唔剔選，由用家手動揀
+                cb.checked = true; // 預設全部勾選
                 label.appendChild(cb);
                 label.appendChild(document.createTextNode(name));
                 eaterContainer.appendChild(label);
@@ -599,7 +576,7 @@
             <div class="eater-checkboxes"></div>
         `;
         container.appendChild(row);
-        updateItemEaters(); // 更新這個新行的 checkbox
+        updateItemEaters(); // 更新這個新行的 checkbox（全部勾選）
     }
 
     function removeItem(btn) {
@@ -838,7 +815,8 @@
             <div class="eater-checkboxes"></div>
         `;
         container.appendChild(firstRow);
-        document.querySelectorAll('#participantCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
+        // 重設用餐朋友為全部勾選
+        document.querySelectorAll('#participantCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = true);
         updateItemEaters();
         applyFilters();
         switchTab('tab-records');
