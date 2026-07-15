@@ -11,8 +11,9 @@
         .app-container { width: 100%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; padding-bottom: 20px; }
 
         .header { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 20px 16px; text-align: center; }
-        .header h1 { font-size: 26px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+        .header h1 { font-size: 26px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
 
+        /* 可愛用餐卡通 Avatar（非 Chikawa） */
         .avatar-container {
             display: inline-block;
             width: 56px;
@@ -27,14 +28,15 @@
             height: 100%;
             display: block;
             border-radius: 50%;
-            background: #fffaf0;
+            background: #FFF8F0;
             border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
+
         @keyframes swingAnimation {
-            0% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-            100% { transform: rotate(-5deg); }
+            0% { transform: rotate(-6deg); }
+            50% { transform: rotate(6deg); }
+            100% { transform: rotate(-6deg); }
         }
 
         .mode-switch { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fff; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
@@ -109,13 +111,50 @@
         .upload-area input[type="file"] { display: none; }
         .ocr-status { font-size: 12px; color: #888; margin-top: 4px; }
 
-        /* 項目行樣式 */
+        /* 用餐朋友 checkbox - 調整字型及顯示 */
+        .participant-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .participant-grid label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            background: #f8f9fa;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+        .participant-grid label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #ee5a24;
+            flex-shrink: 0;
+        }
+
+        /* 項目行內嘅享用者 checkbox */
         .item-row { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eaeaea; }
         .item-row .item-fields { display: flex; gap: 8px; flex-wrap: wrap; }
         .item-row .item-fields input { flex: 1; min-width: 60px; padding: 6px 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; }
         .item-row .eater-checkboxes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-        .item-row .eater-checkboxes label { display: flex; align-items: center; gap: 4px; font-size: 12px; background: white; padding: 2px 8px; border-radius: 12px; border: 1px solid #ddd; cursor: pointer; }
-        .item-row .eater-checkboxes input[type="checkbox"] { width: 14px; height: 14px; accent-color: #ee5a24; }
+        .item-row .eater-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 12px;
+            background: white;
+            padding: 2px 10px;
+            border-radius: 14px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .item-row .eater-checkboxes label input[type="checkbox"] { width: 14px; height: 14px; accent-color: #ee5a24; flex-shrink: 0; }
         .item-row .btn-remove-item { background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
         .hidden { display: none !important; }
@@ -131,25 +170,39 @@
 <div class="app-container">
     <div class="header">
         <h1>
+            <!-- 可愛用餐卡通（非 Chikawa） -->
             <span class="avatar-container">
                 <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="60" cy="60" r="58" fill="#FFF9F0"/>
-                    <ellipse cx="60" cy="88" rx="34" ry="14" fill="#E8D5B5" stroke="#BFA88A" stroke-width="2"/>
-                    <path d="M26 88 C26 104 94 104 94 88" fill="#E8D5B5" stroke="#BFA88A" stroke-width="2"/>
-                    <ellipse cx="60" cy="84" rx="30" ry="10" fill="#FAD02C" opacity="0.7"/>
-                    <path d="M34 78 Q40 70 48 76 Q56 70 64 76 Q72 70 80 78 Q86 84 78 90 Q70 96 62 88 Q54 96 46 88 Q38 96 34 78Z" fill="#F5D6A8" stroke="#D4A373" stroke-width="2"/>
-                    <circle cx="60" cy="70" r="14" fill="#FFF8E7" stroke="#D4A373" stroke-width="2"/>
-                    <circle cx="60" cy="70" r="8" fill="#FFD93D" stroke="#E8A83A" stroke-width="2"/>
-                    <path d="M54 68 Q60 64 66 68" stroke="#D4845A" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    <circle cx="55" cy="66" r="2" fill="#3D2B1F"/>
-                    <circle cx="65" cy="66" r="2" fill="#3D2B1F"/>
-                    <ellipse cx="50" cy="72" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/>
-                    <ellipse cx="70" cy="72" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/>
-                    <line x1="82" y1="60" x2="54" y2="86" stroke="#8D6E3F" stroke-width="3" stroke-linecap="round"/>
-                    <line x1="86" y1="60" x2="58" y2="86" stroke="#8D6E3F" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M44 56 Q42 48 48 42" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5"/>
-                    <path d="M60 54 Q58 44 64 38" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5"/>
-                    <path d="M76 56 Q74 48 80 42" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5"/>
+                    <!-- 背景 -->
+                    <circle cx="60" cy="60" r="58" fill="#FFF8F0"/>
+                    <!-- 大碗 -->
+                    <ellipse cx="60" cy="85" rx="32" ry="12" fill="#E8D5B5" stroke="#C4A882" stroke-width="2"/>
+                    <path d="M28 85 C28 100 92 100 92 85" fill="#E8D5B5" stroke="#C4A882" stroke-width="2"/>
+                    <!-- 碗內湯汁 -->
+                    <ellipse cx="60" cy="82" rx="28" ry="9" fill="#FAD02C" opacity="0.6"/>
+                    <!-- 麵條（彎曲） -->
+                    <path d="M36 76 Q42 68 50 74 Q58 66 66 74 Q74 66 82 74 Q86 80 78 86 Q70 92 62 84 Q54 92 46 84 Q38 92 36 76Z" fill="#F5D6A8" stroke="#D4A373" stroke-width="2"/>
+                    <!-- 可愛笑臉蛋（主角） -->
+                    <circle cx="60" cy="68" r="16" fill="#FFF8E7" stroke="#D4A373" stroke-width="2"/>
+                    <circle cx="60" cy="68" r="10" fill="#FFD93D" stroke="#E8A83A" stroke-width="1.5"/>
+                    <!-- 蛋嘅笑眼 -->
+                    <path d="M54 65 Q58 60 62 65" stroke="#D4845A" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M66 65 Q70 60 74 65" stroke="#D4845A" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <!-- 微笑 -->
+                    <path d="M56 72 Q60 77 64 72" stroke="#D4845A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <!-- 腮紅 -->
+                    <ellipse cx="50" cy="70" rx="4" ry="3" fill="#FFB6C1" opacity="0.6"/>
+                    <ellipse cx="70" cy="70" rx="4" ry="3" fill="#FFB6C1" opacity="0.6"/>
+                    <!-- 筷子 -->
+                    <line x1="80" y1="58" x2="52" y2="84" stroke="#8D6E3F" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="84" y1="58" x2="56" y2="84" stroke="#8D6E3F" stroke-width="3" stroke-linecap="round"/>
+                    <!-- 蒸氣 -->
+                    <path d="M44 54 Q42 46 48 40" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+                    <path d="M60 52 Q58 42 64 36" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+                    <path d="M76 54 Q74 46 80 40" stroke="#DDD" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+                    <!-- 小星星裝飾 -->
+                    <text x="32" y="34" font-size="10" fill="#FFD93D" opacity="0.7">✦</text>
+                    <text x="82" y="32" font-size="8" fill="#FFD93D" opacity="0.7">✦</text>
                 </svg>
             </span>
             Winnie Pay
@@ -198,7 +251,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- TAB 2: 新增用餐（改版） -->
+    <!-- TAB 2: 新增用餐 -->
     <!-- ============================================================ -->
     <div id="tab-add" class="tab-content">
         <h2 style="font-size:18px; margin-bottom:12px;">📸 新增用餐記錄</h2>
@@ -240,11 +293,11 @@
             <input type="text" id="debtRestaurantCustom" placeholder="請輸入餐廳名稱" style="margin-top:6px; display:none;">
         </div>
 
-        <!-- 用餐朋友（多選） -->
+        <!-- 用餐朋友（多選）- 預設全部唔剔選 -->
         <div class="form-group">
             <label>👥 用餐朋友（多選）</label>
-            <div id="participantCheckboxes" class="participant-grid" style="display:flex; flex-wrap:wrap; gap:6px;">
-                <!-- 動態由 JS 產生 -->
+            <div id="participantCheckboxes" class="participant-grid">
+                <!-- 動態由 JS 產生，預設唔剔選 -->
             </div>
         </div>
 
@@ -252,7 +305,6 @@
         <div class="form-group">
             <label>📋 食物項目（每行可揀享用嘅朋友）</label>
             <div id="itemList">
-                <!-- 初始一個項目 -->
                 <div class="item-row" data-index="0">
                     <div class="item-fields">
                         <input type="text" class="item-food" placeholder="食物（如牛肉飯）">
@@ -315,7 +367,6 @@
     // ============================================================
     let friends = ['Peter', 'Mary', 'John', 'Winnie'];
     let debts = [
-        // 原有記錄（保留作為示範）
         { id: 1, name: 'Peter', date: '2026-07-10', restaurant: '吉野家', food: '牛肉飯+可樂', drink: '', amount: 65.00, paid: false, receipt: null },
         { id: 2, name: 'Peter', date: '2026-07-12', restaurant: '大家樂', food: '焗豬扒飯+熱奶茶', drink: '', amount: 48.00, paid: true, receipt: null },
         { id: 3, name: 'Mary', date: '2026-07-11', restaurant: '麥當勞', food: '巨無霸餐+可樂', drink: '', amount: 42.50, paid: false, receipt: null },
@@ -490,18 +541,17 @@
     }
 
     // ============================================================
-    //  管理用餐朋友 checkbox
+    //  管理用餐朋友 checkbox（預設唔剔選）
     // ============================================================
     function renderParticipantCheckboxes() {
         const container = document.getElementById('participantCheckboxes');
         container.innerHTML = '';
         friends.forEach(name => {
             const label = document.createElement('label');
-            label.style.cssText = 'display:flex; align-items:center; gap:4px; font-size:13px; background:#f8f9fa; padding:4px 10px; border-radius:20px; border:1px solid #ddd; cursor:pointer;';
             const cb = document.createElement('input');
             cb.type = 'checkbox';
             cb.value = name;
-            cb.checked = true;
+            cb.checked = false; // 預設唔剔選
             cb.onchange = updateItemEaters;
             label.appendChild(cb);
             label.appendChild(document.createTextNode(name));
@@ -524,7 +574,7 @@
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.value = name;
-                cb.checked = true; // 默認全部勾選
+                cb.checked = false; // 項目內嘅享用者預設都唔剔選，由用家手動揀
                 label.appendChild(cb);
                 label.appendChild(document.createTextNode(name));
                 eaterContainer.appendChild(label);
@@ -562,7 +612,7 @@
     }
 
     // ============================================================
-    //  OCR 處理（沿用）
+    //  OCR 處理
     // ============================================================
     async function handleReceiptUpload(input) {
         const file = input.files[0];
@@ -621,32 +671,27 @@
             }
         }
 
-        // 嘗試提取多個項目（簡化：找包含關鍵字的行）
+        // 嘗試提取多個項目
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         const itemContainer = document.getElementById('itemList');
-        // 清空現有項目（保留一個）
         const existingRows = itemContainer.querySelectorAll('.item-row');
         for (let i = existingRows.length - 1; i > 0; i--) {
             existingRows[i].remove();
         }
         const firstRow = existingRows[0];
-        // 嘗試從文字中提取食物和金額
         let itemsFound = 0;
         const foodKeywords = ['飯', '麵', '餐', '扒', '雞', '牛', '豬', '魚', '蝦', '蛋', '湯', '沙律', '包', '餅', '粉'];
         for (let line of lines) {
             let matched = false;
             for (let kw of foodKeywords) {
                 if (line.includes(kw) && !line.includes('$') && !line.match(/\d/)) {
-                    // 嘗試找出金額
                     let amountMatch = line.match(/\d+\.?\d*/);
                     if (amountMatch) {
                         const food = line.replace(amountMatch[0], '').trim();
                         if (itemsFound === 0) {
-                            // 用第一行
                             firstRow.querySelector('.item-food').value = food;
                             firstRow.querySelector('.item-amount').value = amountMatch[0];
                         } else {
-                            // 新增行
                             const newRow = document.createElement('div');
                             newRow.className = 'item-row';
                             newRow.innerHTML = `
@@ -667,10 +712,8 @@
                 }
             }
             if (matched) continue;
-            // 如果沒有食物關鍵字但有金額，當作飲品或小食？
         }
-        // 如果沒有找到任何項目，保留空白行
-        updateItemEaters(); // 更新所有 checkbox
+        updateItemEaters();
     }
 
     // ============================================================
@@ -682,7 +725,6 @@
             return;
         }
 
-        // 收集基本資料
         const date = document.getElementById('debtDate').value;
         let restaurant = document.getElementById('debtRestaurant').value;
         if (restaurant === '其他（手動輸入）') {
@@ -723,10 +765,8 @@
             return;
         }
 
-        // 計算每位朋友的總欠款
         const totalPerPerson = {};
         participants.forEach(p => totalPerPerson[p] = 0);
-
         items.forEach(item => {
             const share = item.amount / item.eaters.length;
             item.eaters.forEach(eater => {
@@ -736,14 +776,6 @@
             });
         });
 
-        // 為每位朋友產生一條欠款記錄
-        const receiptData = document.getElementById('receiptInput').files[0] ? 
-            (() => { const reader = new FileReader(); reader.readAsDataURL(document.getElementById('receiptInput').files[0]); return reader.result; })() : null;
-
-        // 因為讀取檔案是非同步，但為簡化，我們先同步儲存（無收據檔案）
-        // 為了包含收據，可能需要非同步，但這裡暫時略過，可用全局變數儲存
-        // 我們在 saveMeal 中處理，但由於讀取非同步，我們改為在儲存時若無收據則直接儲存
-        // 簡單做法：先將收據圖片存在變量，若有的話
         const fileInput = document.getElementById('receiptInput');
         if (fileInput.files && fileInput.files[0]) {
             const reader = new FileReader();
@@ -758,11 +790,9 @@
     }
 
     function saveDebtsForMeal(date, restaurant, participants, items, totalPerPerson, receiptData) {
-        // 為每個有欠款的朋友建立記錄
         let created = 0;
         for (let [name, total] of Object.entries(totalPerPerson)) {
             if (total <= 0) continue;
-            // 合併食物飲品描述
             const itemsDesc = items
                 .filter(item => item.eaters.includes(name))
                 .map(item => `${item.food}${item.drink ? '+' + item.drink : ''}`)
@@ -787,7 +817,6 @@
         }
 
         alert(`✅ 已成功建立 ${created} 條欠款記錄！`);
-        // 重置表單（可選）
         document.getElementById('debtDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('debtRestaurant').value = '大家樂';
         document.getElementById('debtRestaurantCustom').value = '';
@@ -795,7 +824,6 @@
         document.getElementById('receiptInput').value = '';
         document.getElementById('receiptPreview').style.display = 'none';
         document.getElementById('ocrStatus').textContent = '';
-        // 重設項目清單（保留一行）
         const container = document.getElementById('itemList');
         container.innerHTML = '';
         const firstRow = document.createElement('div');
@@ -810,11 +838,9 @@
             <div class="eater-checkboxes"></div>
         `;
         container.appendChild(firstRow);
-        // 重設參與朋友為全部勾選
-        document.querySelectorAll('#participantCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = true);
+        document.querySelectorAll('#participantCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
         updateItemEaters();
-        applyFilters(); // 刷新記錄列表
-        // 切換到記錄頁面
+        applyFilters();
         switchTab('tab-records');
     }
 
@@ -830,7 +856,6 @@
         if (!name) return alert('請輸入姓名');
         if (friends.includes(name)) return alert('朋友已存在');
         friends.push(name);
-        // 更新 UI
         renderFriendSelects();
         renderParticipantCheckboxes();
         renderFriends();
@@ -839,7 +864,6 @@
     }
 
     function renderFriendSelects() {
-        // 更新 filter 下拉
         const select = document.getElementById('friendFilter');
         select.innerHTML = '<option value="">-</option>';
         friends.forEach(f => {
@@ -848,7 +872,6 @@
             opt.textContent = f;
             select.appendChild(opt);
         });
-        // 更新朋友管理列表（由 renderFriends 負責）
     }
 
     function renderFriends() {
@@ -856,11 +879,8 @@
         container.innerHTML = friends.map(f => `<div class="record-card"><span>${f}</span></div>`).join('');
     }
 
-    // 在頁面載入時調用
     function initAddTab() {
         renderParticipantCheckboxes();
-        // 增加一個初始項目行
-        // 確保 itemList 已有一行（已在 HTML 中定義）
     }
 
     // ============================================================
@@ -887,7 +907,7 @@
     }
 
     // ============================================================
-    //  WhatsApp 通知（單筆）
+    //  WhatsApp 通知
     // ============================================================
     function sendWhatsApp(name, amount) {
         if (amount <= 0) {
@@ -899,9 +919,6 @@
         window.open(url, '_blank');
     }
 
-    // ============================================================
-    //  WhatsApp 通知（總額）
-    // ============================================================
     function sendWhatsAppTotal(name, totalAmount) {
         if (totalAmount <= 0) {
             alert('沒有未付欠款');
@@ -930,7 +947,6 @@
             if (e.target === this) closeReceiptModal();
         });
 
-        // 餐廳下拉控制
         const sel = document.getElementById('debtRestaurant');
         const custom = document.getElementById('debtRestaurantCustom');
         sel.addEventListener('change', function() {
