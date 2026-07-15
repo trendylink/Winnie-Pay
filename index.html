@@ -9,10 +9,21 @@
         body { background-color: #f5f7fb; color: #333; padding: 12px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; padding-bottom: 20px; }
 
-        .header { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 20px 16px; text-align: center; }
-        .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 2px; }
+        /* Header 加入 Chikawa 動畫 */
+        .header { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 20px 16px; text-align: center; position: relative; }
+        .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 2px; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
         .header h1 span { font-size: 24px; }
         .header p { font-size: 13px; opacity: 0.9; }
+
+        /* Chikawa 動畫容器 */
+        .chikawa-wrapper { display: inline-flex; align-items: center; gap: 4px; margin-left: 4px; }
+        .chikawa-bento { display: inline-block; font-size: 32px; animation: bounce 1.2s infinite ease-in-out; transform-origin: center; }
+        .chikawa-label { font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 12px; letter-spacing: 0.5px; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(8deg); }
+        }
 
         /* 管理模式開關 */
         .mode-switch { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fff; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
@@ -21,7 +32,8 @@
         .mode-switch .toggle.active { background: #ee5a24; }
         .mode-switch .toggle .slider { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s; }
         .mode-switch .toggle.active .slider { transform: translateX(22px); }
-        .mode-switch .status { font-weight: bold; color: #ee5a24; }
+        .mode-switch .status { font-weight: bold; color: #888; }
+        .mode-switch .status.on { color: #ee5a24; }
         .mode-switch .status.off { color: #888; }
 
         .tab-bar { display: flex; background: #f8f9fa; border-bottom: 1px solid #eee; }
@@ -98,22 +110,28 @@
 
 <div class="app-container">
     <div class="header">
-        <h1><span>🍽️</span> Winnie Pay 系統</h1>
+        <h1>
+            <span>🍽️</span> Winnie Pay 系統
+            <span class="chikawa-wrapper">
+                <span class="chikawa-bento">🍱</span>
+                <span class="chikawa-label">Chikawa</span>
+            </span>
+        </h1>
         <p>按項目分帳 · 朋友只睇數</p>
     </div>
 
-    <!-- 管理模式開關 -->
+    <!-- 管理模式開關（預設為關） -->
     <div class="mode-switch">
         <span class="label">👑 管理模式</span>
-        <div class="toggle active" id="modeToggle" onclick="toggleMode()">
+        <div class="toggle" id="modeToggle" onclick="toggleMode()">
             <div class="slider"></div>
         </div>
-        <span class="status" id="modeStatus">開</span>
+        <span class="status off" id="modeStatus">關</span>
     </div>
 
     <div class="demo-note">
         ⚠️ 靜態預覽版 · 所有功能皆為模擬示範<br>
-        ✅ 管理模式（開）：Winnie 可編輯 · 訪客模式（關）：只睇數
+        ✅ 管理模式（關）：朋友只睇數 · 輸入密碼可開啟編輯
     </div>
 
     <!-- Tab Navigation -->
@@ -252,7 +270,6 @@
                 </div>
                 <div class="meal-footer">
                     <button class="btn btn-primary btn-sm" onclick="alert('📋 顯示詳情（示範）')">📋 查看詳情</button>
-                    <!-- 標記已付款按鈕（只限 Winnie 模式顯示） -->
                     <button class="btn btn-success btn-sm admin-only" onclick="alert('✅ 模擬標記已付款（示範）')">✅ 標記已付款</button>
                 </div>
             </div>
@@ -307,7 +324,6 @@
                 </div>
             </div>
         </div>
-        <!-- 新增朋友表單（只限 Winnie 模式顯示） -->
         <div class="form-group mt-16 admin-only" id="addMemberForm">
             <label>➕ 新增朋友</label>
             <div class="row">
@@ -325,53 +341,73 @@
 
 <script>
     // ============================================================
-    //  管理模式切換
+    //  管理模式密碼
     // ============================================================
-    let isWinnieMode = true;
+    const ADMIN_PASSWORD = 'Winnie';
+    let isWinnieMode = false;   // 預設為關
 
+    // ============================================================
+    //  管理模式切換（需要密碼）
+    // ============================================================
     function toggleMode() {
-        isWinnieMode = !isWinnieMode;
+        if (isWinnieMode) {
+            // 如果目前是開啟狀態，關閉時不需要密碼
+            isWinnieMode = false;
+            updateModeUI();
+            return;
+        }
+
+        // 目前是關閉狀態，要開啟需要輸入密碼
+        const password = prompt('請輸入管理模式密碼：');
+        if (password === null) return; // 取消
+        if (password === ADMIN_PASSWORD) {
+            isWinnieMode = true;
+            updateModeUI();
+            alert('✅ 管理模式已開啟，你現在可以編輯所有內容。');
+        } else {
+            alert('❌ 密碼錯誤，管理模式維持關閉。');
+        }
+    }
+
+    function updateModeUI() {
         const toggle = document.getElementById('modeToggle');
         const status = document.getElementById('modeStatus');
-        toggle.classList.toggle('active');
-        status.textContent = isWinnieMode ? '開' : '關';
-        status.className = 'status' + (isWinnieMode ? '' : ' off');
+        if (isWinnieMode) {
+            toggle.classList.add('active');
+            status.textContent = '開';
+            status.className = 'status on';
+        } else {
+            toggle.classList.remove('active');
+            status.textContent = '關';
+            status.className = 'status off';
+        }
         applyMode();
     }
 
     function applyMode() {
-        // 控制新增飯局 tab 顯示
         const newTabBtn = document.querySelector('.tab-btn[data-tab="tab-new"]');
         const newTabContent = document.getElementById('tab-new');
         if (isWinnieMode) {
             newTabBtn.classList.remove('hidden-tab');
             newTabContent.classList.remove('hidden');
-            // 如果當前是 active 且隱藏了，切換到歷史
         } else {
             newTabBtn.classList.add('hidden-tab');
             newTabContent.classList.add('hidden');
-            // 如果當前顯示的是新增 tab，跳到歷史
             if (newTabContent.classList.contains('active')) {
                 switchTab('tab-history');
             }
         }
-
-        // 控制管理員專用元素（標記已付款按鈕、新增朋友表單）
         document.querySelectorAll('.admin-only').forEach(el => {
             el.style.display = isWinnieMode ? '' : 'none';
         });
-
-        // 如果關閉管理模式，隱藏朋友管理中的新增表單（已透過 admin-only 控制）
-        // 另外，項目中的刪除按鈕（紅色 X）也應該隱藏？但那些在新增飯局頁面，既然整個 tab 都隱藏了，就不需額外處理。
     }
 
     // ============================================================
-    //  分頁切換（加入模式檢查）
+    //  分頁切換
     // ============================================================
     function switchTab(tabId) {
-        // 如果 tab 是 "tab-new" 且模式為訪客，則不允許切換
         if (tabId === 'tab-new' && !isWinnieMode) {
-            alert('訪客模式無法新增飯局');
+            alert('訪客模式無法新增飯局，請開啟管理模式。');
             return;
         }
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -400,15 +436,11 @@
         if (select.value === '其他（請手動輸入）') {
             customInput.style.display = 'block';
         }
-        // 初始化管理模式
+        // 初始應用模式（預設關）
         applyMode();
-        // 預設計算
         calculateDemo();
     });
 
-    // ============================================================
-    //  獲取餐廳名稱
-    // ============================================================
     function getRestaurantName() {
         const select = document.getElementById('restaurantSelect');
         const custom = document.getElementById('restaurantCustom');
@@ -423,7 +455,7 @@
     // ============================================================
     function addItem() {
         if (!isWinnieMode) {
-            alert('訪客模式無法新增項目');
+            alert('訪客模式無法新增項目，請開啟管理模式。');
             return;
         }
         const container = document.getElementById('itemList');
@@ -566,7 +598,8 @@
 
     // 初始化
     window.onload = function() {
-        applyMode();
+        // 預設為關，不需額外動作，但確保 UI 同步
+        updateModeUI();
         calculateDemo();
     };
 </script>
