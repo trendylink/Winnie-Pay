@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Winnie Pay 系統</title>
-    <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
@@ -12,9 +11,34 @@
         .app-container { width: 100%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; padding-bottom: 20px; }
 
         .header { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 20px 16px; text-align: center; }
-        .header h1 { font-size: 22px; font-weight: 600; }
-        .header h1 span { font-size: 24px; }
-        .header p { font-size: 13px; opacity: 0.9; }
+        .header h1 { font-size: 22px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+        /* ====== 左右搖擺 Animation ====== */
+        @keyframes swingAnimation {
+            0% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+            100% { transform: rotate(-8deg); }
+        }
+
+        .avatar-container {
+            display: inline-block;
+            width: 42px;
+            height: 42px;
+            animation: swingAnimation 2s ease-in-out infinite;
+            transform-origin: bottom center;
+            vertical-align: middle;
+        }
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #fff;
+        }
+        /* ================================ */
 
         .mode-switch { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fff; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
         .mode-switch .label { font-weight: 600; color: #555; }
@@ -26,7 +50,6 @@
         .mode-switch .status.on { color: #ee5a24; }
         .mode-switch .status.off { color: #888; }
 
-        /* Filter bar */
         .filter-bar { padding: 12px 16px; background: #fafafa; border-bottom: 1px solid #eee; }
         .filter-bar select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; margin-bottom: 8px; }
         .filter-buttons { display: flex; gap: 8px; }
@@ -56,7 +79,6 @@
         .btn-sm { padding: 6px 12px; font-size: 12px; width: auto; display: inline-block; }
         .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* Record card */
         .record-card { background: white; border: 1px solid #eaeaea; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
         .record-card .record-header { display: flex; justify-content: space-between; font-weight: bold; }
         .record-card .record-header .date { color: #888; font-weight: normal; }
@@ -70,7 +92,6 @@
         .status-badge.unpaid { background: #ffeaa7; color: #d68910; }
         .status-badge.paid { background: #d5f5e3; color: #1a7a42; }
 
-        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; }
         .modal-content { background: white; border-radius: 16px; padding: 24px; max-width: 340px; width: 90%; max-height: 80vh; overflow-y: auto; }
         .modal-content h3 { margin-bottom: 12px; }
@@ -78,7 +99,6 @@
         .modal-content .pay-item:last-child { border-bottom: none; }
         .modal-content .close-btn { margin-top: 16px; }
 
-        /* Upload area */
         .upload-area { border: 2px dashed #ccc; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.3s; }
         .upload-area:hover { border-color: #ee5a24; }
         .upload-area .icon { font-size: 32px; display: block; }
@@ -98,13 +118,16 @@
 <body>
 
 <div class="app-container">
-    <!-- Header -->
     <div class="header">
-        <h1><span>🍽️</span> Winnie Pay 系統</h1>
+        <h1>
+            <span class="avatar-container">
+                <img src="image_239e04.png" alt="Winnie Avatar">
+            </span> 
+            Winnie Pay 系統
+        </h1>
         <p>欠款管理 · 朋友快速找數</p>
     </div>
 
-    <!-- 管理模式開關（預設關） -->
     <div class="mode-switch">
         <span class="label">👑 管理模式</span>
         <div class="toggle" id="modeToggle" onclick="toggleMode()">
@@ -115,13 +138,12 @@
 
     <div class="demo-note">
         ⚠️ 靜態預覽 · 資料儲存於記憶體（刷新消失）<br>
-        ✅ 預設顯示最近 7 日「未付」記錄
+        ✅ 揀朋友後預設顯示「未付」記錄
     </div>
 
-    <!-- Filter Bar -->
     <div class="filter-bar">
         <select id="friendFilter" onchange="applyFilters()">
-            <option value="all">全部朋友</option>
+            <option value="">-</option>
             <option value="Peter">Peter</option>
             <option value="Mary">Mary</option>
             <option value="John">John</option>
@@ -130,30 +152,21 @@
         <div class="filter-buttons">
             <button class="btn active" data-filter="unpaid" onclick="setFilter('unpaid')">⏳ 未付</button>
             <button class="btn" data-filter="all" onclick="setFilter('all')">📋 全部</button>
-            <button class="btn" data-filter="paid" onclick="setFilter('paid')">✅ 已付</button>
         </div>
     </div>
 
-    <!-- Tab Navigation -->
     <div class="tab-bar">
         <button class="tab-btn active" data-tab="tab-records" onclick="switchTab('tab-records')">📋 欠款記錄</button>
         <button class="tab-btn hidden-tab" data-tab="tab-add" onclick="switchTab('tab-add')">➕ 新增欠款</button>
         <button class="tab-btn" data-tab="tab-friends" onclick="switchTab('tab-friends')">👥 朋友</button>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- TAB 1: 欠款記錄 -->
-    <!-- ============================================================ -->
     <div id="tab-records" class="tab-content active">
         <div id="recordList"></div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- TAB 2: 新增欠款（管理模式） -->
-    <!-- ============================================================ -->
     <div id="tab-add" class="tab-content">
         <h2 style="font-size:18px; margin-bottom:12px;">➕ 新增欠款記錄</h2>
-        <!-- 拍照上傳 + OCR -->
         <div class="form-group">
             <label>📸 上傳收據（OCR 自動辨識）</label>
             <div class="upload-area" onclick="document.getElementById('receiptInput').click()">
@@ -178,19 +191,32 @@
             <label>📅 日期</label>
             <input type="date" id="debtDate">
         </div>
+        <div class="form-group">
+            <label>🏪 餐廳</label>
+            <select id="debtRestaurant">
+                <option value="大家樂">大家樂</option>
+                <option value="大快活">大快活</option>
+                <option value="美心MX">美心MX</option>
+                <option value="吉野家">吉野家</option>
+                <option value="麥當勞">麥當勞</option>
+                <option value="肯德基">肯德基</option>
+                <option value="必勝客">必勝客</option>
+                <option value="薩莉亞">薩莉亞</option>
+                <option value="翠華">翠華</option>
+                <option value="譚仔">譚仔</option>
+                <option value="其他（手動輸入）">其他（手動輸入）</option>
+            </select>
+            <input type="text" id="debtRestaurantCustom" placeholder="請輸入餐廳名稱" style="margin-top:6px; display:none;" oninput="autoFillRestaurant()">
+        </div>
         <div class="row">
-            <div class="form-group">
-                <label>🏪 餐廳</label>
-                <input type="text" id="debtRestaurant" placeholder="吉野家">
-            </div>
             <div class="form-group">
                 <label>🍜 食物</label>
                 <input type="text" id="debtFood" placeholder="牛肉飯">
             </div>
-        </div>
-        <div class="form-group">
-            <label>🥤 飲品</label>
-            <input type="text" id="debtDrink" placeholder="可樂">
+            <div class="form-group">
+                <label>🥤 飲品</label>
+                <input type="text" id="debtDrink" placeholder="可樂">
+            </div>
         </div>
         <div class="form-group">
             <label>💰 金額</label>
@@ -199,17 +225,9 @@
         <button class="btn btn-success" onclick="addDebt()">✅ 新增記錄</button>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- TAB 3: 朋友管理 -->
-    <!-- ============================================================ -->
     <div id="tab-friends" class="tab-content">
         <h2 style="font-size:18px; margin-bottom:12px;">👥 朋友清單</h2>
-        <div id="friendList">
-            <div class="record-card"><span>Peter</span></div>
-            <div class="record-card"><span>Mary</span></div>
-            <div class="record-card"><span>John</span></div>
-            <div class="record-card"><span>Winnie</span></div>
-        </div>
+        <div id="friendList"></div>
         <div class="form-group mt-16 admin-only">
             <label>➕ 新增朋友</label>
             <input type="text" id="newFriendName" placeholder="姓名">
@@ -217,9 +235,6 @@
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- 付款方式 Modal -->
-    <!-- ============================================================ -->
     <div class="modal" id="paymentModal">
         <div class="modal-content">
             <h3>🏦 付款方式</h3>
@@ -230,7 +245,6 @@
         </div>
     </div>
 
-    <!-- 收據預覽 Modal -->
     <div class="modal" id="receiptModal">
         <div class="modal-content">
             <h3>🖼️ 收據圖片</h3>
@@ -238,36 +252,26 @@
             <button class="btn btn-primary close-btn mt-8" onclick="closeReceiptModal()">關閉</button>
         </div>
     </div>
-
 </div>
 
 <script>
-    // ============================================================
-    //  密碼及模式
-    // ============================================================
     const ADMIN_PASSWORD = 'Winnie';
     let isWinnieMode = false;
 
-    // ============================================================
-    //  資料（模擬）
-    // ============================================================
     let friends = ['Peter', 'Mary', 'John', 'Winnie'];
     let debts = [
         { id: 1, name: 'Peter', date: '2026-07-10', restaurant: '吉野家', food: '牛肉飯', drink: '可樂', amount: 65.00, paid: false, receipt: null },
         { id: 2, name: 'Peter', date: '2026-07-12', restaurant: '大家樂', food: '焗豬扒飯', drink: '熱奶茶', amount: 48.00, paid: true, receipt: null },
         { id: 3, name: 'Mary', date: '2026-07-11', restaurant: '麥當勞', food: '巨無霸餐', drink: '可樂', amount: 42.50, paid: false, receipt: null },
-        { id: 4, name: 'John', date: '2026-07-09', restaurant: '翠華', food: '咖哩牛腩飯', drink: '檸檬茶', amount: 58.00, paid: false, receipt: null },
+        { id: 4, name: 'John', date: '2026-06-28', restaurant: '翠華', food: '咖哩牛腩飯', drink: '檸檬茶', amount: 58.00, paid: false, receipt: null },
         { id: 5, name: 'Winnie', date: '2026-07-08', restaurant: '茶木', food: '牛肉麵', drink: '珍珠奶茶', amount: 72.00, paid: true, receipt: null },
-        // 額外加入一些最近7天的記錄
         { id: 6, name: 'Peter', date: '2026-07-14', restaurant: '肯德基', food: '炸雞餐', drink: '汽水', amount: 55.00, paid: false, receipt: null },
         { id: 7, name: 'Mary', date: '2026-07-13', restaurant: '必勝客', food: 'Pizza', drink: '可樂', amount: 80.00, paid: false, receipt: null },
+        { id: 8, name: 'John', date: '2026-07-05', restaurant: '薩莉亞', food: '意粉', drink: '檸檬茶', amount: 45.00, paid: true, receipt: null },
     ];
-    let nextId = 8;
-    let currentFilter = 'unpaid'; // 'all', 'unpaid', 'paid'
+    let nextId = 9;
+    let currentFilter = 'unpaid';
 
-    // ============================================================
-    //  切換管理模式
-    // ============================================================
     function toggleMode() {
         if (isWinnieMode) {
             isWinnieMode = false;
@@ -297,26 +301,19 @@
             status.textContent = '關';
             status.className = 'status off';
         }
-        // 管理員專用功能（新增欠款 tab）
         const addTabBtn = document.querySelector('.tab-btn[data-tab="tab-add"]');
         if (isWinnieMode) {
             addTabBtn.classList.remove('hidden-tab');
         } else {
             addTabBtn.classList.add('hidden-tab');
-            // 如果目前是新增 tab，切回記錄
             if (document.getElementById('tab-add').classList.contains('active')) {
                 switchTab('tab-records');
             }
         }
-        // 朋友管理中的新增表單
         document.querySelectorAll('.admin-only').forEach(el => el.style.display = isWinnieMode ? '' : 'none');
-        // 重新整理記錄
         applyFilters();
     }
 
-    // ============================================================
-    //  分頁切換
-    // ============================================================
     function switchTab(tabId) {
         if (tabId === 'tab-add' && !isWinnieMode) {
             alert('請先開啟管理模式');
@@ -328,9 +325,6 @@
         document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
     }
 
-    // ============================================================
-    //  篩選邏輯
-    // ============================================================
     function setFilter(filter) {
         currentFilter = filter;
         document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
@@ -341,26 +335,19 @@
 
     function applyFilters() {
         const selectedFriend = document.getElementById('friendFilter').value;
-        const now = new Date();
-        const sevenDaysAgo = new Date(now);
-        sevenDaysAgo.setDate(now.getDate() - 7);
+        const container = document.getElementById('recordList');
 
-        let filtered = debts.filter(d => {
-            // 日期篩選（最近7天）
-            const dDate = new Date(d.date);
-            if (dDate < sevenDaysAgo || dDate > now) return false;
-            // 朋友篩選
-            if (selectedFriend !== 'all' && d.name !== selectedFriend) return false;
-            // 狀態篩選
-            if (currentFilter === 'paid' && !d.paid) return false;
-            if (currentFilter === 'unpaid' && d.paid) return false;
-            return true;
-        });
+        if (!selectedFriend) {
+            container.innerHTML = '<p class="text-muted">請選擇朋友</p>';
+            return;
+        }
 
-        // 排序：最新日期在前
+        let filtered = debts.filter(d => d.name === selectedFriend);
+        if (currentFilter === 'unpaid') {
+            filtered = filtered.filter(d => !d.paid);
+        }
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        const container = document.getElementById('recordList');
         if (filtered.length === 0) {
             container.innerHTML = '<p class="text-muted">沒有符合條件的記錄</p>';
             return;
@@ -397,9 +384,6 @@
         container.innerHTML = html;
     }
 
-    // ============================================================
-    //  標記已付/未付（管理模式）
-    // ============================================================
     function togglePaid(id) {
         const debt = debts.find(d => d.id === id);
         if (debt) {
@@ -408,18 +392,12 @@
         }
     }
 
-    // ============================================================
-    //  刪除記錄（管理模式）
-    // ============================================================
     function deleteDebt(id) {
         if (!confirm('確定刪除此記錄？')) return;
         debts = debts.filter(d => d.id !== id);
         applyFilters();
     }
 
-    // ============================================================
-    //  新增欠款（管理模式 + OCR）
-    // ============================================================
     function addDebt() {
         if (!isWinnieMode) {
             alert('請先開啟管理模式');
@@ -427,7 +405,11 @@
         }
         const name = document.getElementById('debtorSelect').value;
         const date = document.getElementById('debtDate').value;
-        const restaurant = document.getElementById('debtRestaurant').value.trim();
+        let restaurant = document.getElementById('debtRestaurant').value;
+        if (restaurant === '其他（手動輸入）') {
+            restaurant = document.getElementById('debtRestaurantCustom').value.trim();
+            if (!restaurant) { alert('請輸入餐廳名稱'); return; }
+        }
         const food = document.getElementById('debtFood').value.trim();
         const drink = document.getElementById('debtDrink').value.trim();
         const amount = parseFloat(document.getElementById('debtAmount').value);
@@ -437,7 +419,6 @@
             return;
         }
 
-        // 有冇收據圖片？
         const fileInput = document.getElementById('receiptInput');
         let receiptData = null;
         if (fileInput.files && fileInput.files[0]) {
@@ -465,9 +446,10 @@
             receipt: receipt
         });
         alert('✅ 已新增欠款記錄');
-        // 清空表單
         document.getElementById('debtDate').value = '';
-        document.getElementById('debtRestaurant').value = '';
+        document.getElementById('debtRestaurant').value = '大家樂';
+        document.getElementById('debtRestaurantCustom').value = '';
+        document.getElementById('debtRestaurantCustom').style.display = 'none';
         document.getElementById('debtFood').value = '';
         document.getElementById('debtDrink').value = '';
         document.getElementById('debtAmount').value = '';
@@ -477,9 +459,19 @@
         applyFilters();
     }
 
-    // ============================================================
-    //  OCR 處理（使用 Tesseract.js）
-    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const sel = document.getElementById('debtRestaurant');
+        const custom = document.getElementById('debtRestaurantCustom');
+        sel.addEventListener('change', function() {
+            if (this.value === '其他（手動輸入）') {
+                custom.style.display = 'block';
+            } else {
+                custom.style.display = 'none';
+                custom.value = '';
+            }
+        });
+    });
+
     async function handleReceiptUpload(input) {
         const file = input.files[0];
         if (!file) return;
@@ -505,13 +497,9 @@
     }
 
     function parseOcrResult(text) {
-        // 簡單解析：嘗試搵日期、餐廳、食物、金額
-        const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-        // 搵日期 (YYYY-MM-DD 或 DD/MM/YYYY 或類似)
         let dateMatch = text.match(/(\d{4}[-/]\d{1,2}[-/]\d{1,2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})/);
         if (dateMatch) {
             let dateStr = dateMatch[0];
-            // 轉換為 YYYY-MM-DD
             if (dateStr.includes('/')) {
                 const parts = dateStr.split('/');
                 if (parts[0].length === 4) dateStr = `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
@@ -519,24 +507,29 @@
             }
             document.getElementById('debtDate').value = dateStr;
         } else {
-            // 預設今日
             document.getElementById('debtDate').value = new Date().toISOString().split('T')[0];
         }
 
-        // 搵餐廳（通常係店名，嘗試搵幾個常見字）
-        const restaurantKeywords = ['餐廳', '飯店', '館', '店', '大家樂', '大快活', '吉野家', '麥當勞', '肯德基', '必勝客', '翠華', '茶木', '一蘭', '譚仔', '南記'];
-        let restaurant = '';
-        for (let kw of restaurantKeywords) {
-            if (text.includes(kw)) {
-                restaurant = kw;
-                break;
+        const restaurantList = ['大家樂', '大快活', '美心MX', '吉野家', '麥當勞', '肯德基', '必勝客', '薩莉亞', '翠華', '譚仔'];
+        let foundRest = restaurantList.find(r => text.includes(r));
+        if (foundRest) {
+            document.getElementById('debtRestaurant').value = foundRest;
+            document.getElementById('debtRestaurantCustom').style.display = 'none';
+        } else {
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            for (let line of lines) {
+                if (line.length < 20 && !line.match(/\d/) && !line.includes('$')) {
+                    document.getElementById('debtRestaurant').value = '其他（手動輸入）';
+                    document.getElementById('debtRestaurantCustom').value = line;
+                    document.getElementById('debtRestaurantCustom').style.display = 'block';
+                    break;
+                }
             }
         }
-        if (restaurant) document.getElementById('debtRestaurant').value = restaurant;
 
-        // 搵食物（嘗試搵常見食物字眼）
         const foodKeywords = ['飯', '麵', '餐', '扒', '雞', '牛', '豬', '魚', '蝦', '蛋', '湯', '沙律', '包', '餅', '粉'];
         let food = '';
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         for (let line of lines) {
             for (let kw of foodKeywords) {
                 if (line.includes(kw) && !line.includes('$') && !line.match(/\d/)) {
@@ -548,12 +541,10 @@
         }
         if (food) document.getElementById('debtFood').value = food;
 
-        // 搵金額（總金額）
         let amountMatch = text.match(/(?:總|合計|total|TOTAL|金額|amount)[\s:]*\$?(\d+\.?\d*)/i);
         if (amountMatch) {
             document.getElementById('debtAmount').value = amountMatch[1];
         } else {
-            // 搵最後一個數字（可能係總金額）
             let nums = text.match(/\d+\.?\d*/g);
             if (nums && nums.length > 0) {
                 let lastNum = parseFloat(nums[nums.length-1]);
@@ -562,9 +553,6 @@
         }
     }
 
-    // ============================================================
-    //  朋友管理
-    // ============================================================
     function addFriend() {
         if (!isWinnieMode) {
             alert('請先開啟管理模式');
@@ -574,19 +562,20 @@
         if (!name) return alert('請輸入姓名');
         if (friends.includes(name)) return alert('朋友已存在');
         friends.push(name);
-        // 更新下拉選單
+        
         const select = document.getElementById('friendFilter');
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
         select.appendChild(opt);
+        
         const debtorSelect = document.getElementById('debtorSelect');
         const opt2 = document.createElement('option');
         opt2.value = name;
         opt2.textContent = name;
         debtorSelect.appendChild(opt2);
+        
         document.getElementById('newFriendName').value = '';
-        // 更新朋友列表
         renderFriends();
         alert('✅ 已新增朋友');
     }
@@ -596,9 +585,6 @@
         container.innerHTML = friends.map(f => `<div class="record-card"><span>${f}</span></div>`).join('');
     }
 
-    // ============================================================
-    //  收據檢視與下載
-    // ============================================================
     function viewReceipt(dataUrl) {
         document.getElementById('receiptFullImage').src = dataUrl;
         document.getElementById('receiptModal').style.display = 'flex';
@@ -608,9 +594,6 @@
         document.getElementById('receiptModal').style.display = 'none';
     }
 
-    // ============================================================
-    //  付款方式 Modal
-    // ============================================================
     function showPaymentModal() {
         document.getElementById('paymentModal').style.display = 'flex';
     }
@@ -619,9 +602,6 @@
         document.getElementById('paymentModal').style.display = 'none';
     }
 
-    // ============================================================
-    //  WhatsApp 通知（發送「我已付款 $XX」俾 Winnie）
-    // ============================================================
     function sendWhatsApp(name, amount) {
         if (amount <= 0) {
             alert('金額無效');
@@ -632,17 +612,12 @@
         window.open(url, '_blank');
     }
 
-    // ============================================================
-    //  初始化
-    // ============================================================
     window.onload = function() {
-        // 設定今日日期
         document.getElementById('debtDate').value = new Date().toISOString().split('T')[0];
         renderFriends();
-        updateModeUI(); // 預設關閉，會隱藏新增 tab
-        applyFilters(); // 顯示記錄
+        updateModeUI();
+        applyFilters();
 
-        // Modal 點擊外部關閉
         document.getElementById('paymentModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
