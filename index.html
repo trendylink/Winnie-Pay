@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Winnie Pay 系統</title>
+    <!-- Tesseract.js for OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
         body { background-color: #f5f7fb; color: #333; padding: 12px; display: flex; justify-content: center; }
@@ -14,7 +16,6 @@
         .header h1 span { font-size: 24px; }
         .header p { font-size: 13px; opacity: 0.9; }
 
-        /* 管理模式開關 */
         .mode-switch { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fff; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
         .mode-switch .label { font-weight: 600; color: #555; }
         .mode-switch .toggle { position: relative; width: 48px; height: 26px; background: #ccc; border-radius: 13px; cursor: pointer; transition: background 0.3s; }
@@ -24,6 +25,13 @@
         .mode-switch .status { font-weight: bold; color: #888; }
         .mode-switch .status.on { color: #ee5a24; }
         .mode-switch .status.off { color: #888; }
+
+        /* Filter bar */
+        .filter-bar { padding: 12px 16px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .filter-bar select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; margin-bottom: 8px; }
+        .filter-buttons { display: flex; gap: 8px; }
+        .filter-buttons .btn { flex: 1; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid #ccc; background: white; cursor: pointer; }
+        .filter-buttons .btn.active { background: #ee5a24; color: white; border-color: #ee5a24; }
 
         .tab-bar { display: flex; background: #f8f9fa; border-bottom: 1px solid #eee; }
         .tab-btn { flex: 1; padding: 12px; text-align: center; font-weight: bold; font-size: 13px; color: #888; cursor: pointer; border: none; background: transparent; border-bottom: 3px solid transparent; }
@@ -35,37 +43,48 @@
 
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 4px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; outline: none; background: white; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; outline: none; background: white; }
         .row { display: flex; gap: 10px; }
         .row .form-group { flex: 1; }
 
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; display: block; text-align: center; transition: opacity 0.2s; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; display: block; text-align: center; transition: opacity 0.2s, background 0.2s; }
         .btn:hover { opacity: 0.85; }
         .btn-primary { background: #ee5a24; color: white; }
         .btn-success { background: #27ae60; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-outline { background: transparent; color: #ee5a24; border: 2px solid #ee5a24; }
-        .btn-sm { padding: 8px 12px; font-size: 12px; width: auto; display: inline-block; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; width: auto; display: inline-block; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* 記錄卡片 */
+        /* Record card */
         .record-card { background: white; border: 1px solid #eaeaea; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
         .record-card .record-header { display: flex; justify-content: space-between; font-weight: bold; }
         .record-card .record-header .date { color: #888; font-weight: normal; }
         .record-card .record-body { font-size: 13px; color: #555; margin-top: 6px; }
-        .record-card .record-footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .record-card .record-body .detail-row { display: flex; justify-content: space-between; padding: 2px 0; }
+        .record-card .record-footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .record-card .record-footer .btn { width: auto; padding: 6px 12px; font-size: 12px; }
+        .record-card .record-footer .receipt-link { font-size: 12px; color: #ee5a24; cursor: pointer; text-decoration: underline; }
 
         .status-badge { padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; display: inline-block; }
         .status-badge.unpaid { background: #ffeaa7; color: #d68910; }
         .status-badge.paid { background: #d5f5e3; color: #1a7a42; }
 
-        /* 付款方式彈窗 */
+        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; }
-        .modal-content { background: white; border-radius: 16px; padding: 24px; max-width: 340px; width: 90%; }
+        .modal-content { background: white; border-radius: 16px; padding: 24px; max-width: 340px; width: 90%; max-height: 80vh; overflow-y: auto; }
         .modal-content h3 { margin-bottom: 12px; }
         .modal-content .pay-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
         .modal-content .pay-item:last-child { border-bottom: none; }
         .modal-content .close-btn { margin-top: 16px; }
+
+        /* Upload area */
+        .upload-area { border: 2px dashed #ccc; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.3s; }
+        .upload-area:hover { border-color: #ee5a24; }
+        .upload-area .icon { font-size: 32px; display: block; }
+        .upload-area img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 8px; }
+        .upload-area input[type="file"] { display: none; }
+        .ocr-status { font-size: 12px; color: #888; margin-top: 4px; }
 
         .hidden { display: none !important; }
         .mt-8 { margin-top: 8px; }
@@ -79,9 +98,10 @@
 <body>
 
 <div class="app-container">
+    <!-- Header -->
     <div class="header">
         <h1><span>🍽️</span> Winnie Pay 系統</h1>
-        <p>欠款通知 · 朋友快速找數</p>
+        <p>欠款管理 · 朋友快速找數</p>
     </div>
 
     <!-- 管理模式開關（預設關） -->
@@ -94,38 +114,57 @@
     </div>
 
     <div class="demo-note">
-        ⚠️ 靜態預覽版 · 所有資料為模擬示範<br>
-        ✅ 管理模式（關）：朋友只睇自己最近 7 日記錄
+        ⚠️ 靜態預覽 · 資料儲存於記憶體（刷新消失）<br>
+        ✅ 預設顯示最近 7 日「未付」記錄
     </div>
 
-    <!-- Tab -->
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <select id="friendFilter" onchange="applyFilters()">
+            <option value="all">全部朋友</option>
+            <option value="Peter">Peter</option>
+            <option value="Mary">Mary</option>
+            <option value="John">John</option>
+            <option value="Winnie">Winnie</option>
+        </select>
+        <div class="filter-buttons">
+            <button class="btn active" data-filter="unpaid" onclick="setFilter('unpaid')">⏳ 未付</button>
+            <button class="btn" data-filter="all" onclick="setFilter('all')">📋 全部</button>
+            <button class="btn" data-filter="paid" onclick="setFilter('paid')">✅ 已付</button>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
     <div class="tab-bar">
-        <button class="tab-btn active" data-tab="tab-record" onclick="switchTab('tab-record')">📋 欠款記錄</button>
-        <button class="tab-btn" data-tab="tab-add" onclick="switchTab('tab-add')">➕ 新增欠款</button>
+        <button class="tab-btn active" data-tab="tab-records" onclick="switchTab('tab-records')">📋 欠款記錄</button>
+        <button class="tab-btn hidden-tab" data-tab="tab-add" onclick="switchTab('tab-add')">➕ 新增欠款</button>
         <button class="tab-btn" data-tab="tab-friends" onclick="switchTab('tab-friends')">👥 朋友</button>
     </div>
 
     <!-- ============================================================ -->
     <!-- TAB 1: 欠款記錄 -->
     <!-- ============================================================ -->
-    <div id="tab-record" class="tab-content active">
-        <div class="form-group">
-            <label>👤 選擇朋友</label>
-            <select id="friendSelect" onchange="renderRecords()">
-                <option value="Peter">Peter</option>
-                <option value="Mary">Mary</option>
-                <option value="John">John</option>
-                <option value="Winnie">Winnie</option>
-            </select>
-        </div>
+    <div id="tab-records" class="tab-content active">
         <div id="recordList"></div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- TAB 2: 新增欠款（只限管理模式） -->
+    <!-- TAB 2: 新增欠款（管理模式） -->
     <!-- ============================================================ -->
     <div id="tab-add" class="tab-content">
         <h2 style="font-size:18px; margin-bottom:12px;">➕ 新增欠款記錄</h2>
+        <!-- 拍照上傳 + OCR -->
+        <div class="form-group">
+            <label>📸 上傳收據（OCR 自動辨識）</label>
+            <div class="upload-area" onclick="document.getElementById('receiptInput').click()">
+                <span class="icon">🖼️</span>
+                <p>點擊上傳或拍照</p>
+                <img id="receiptPreview" style="display:none; max-width:100%; max-height:200px; border-radius:8px; margin-top:8px;">
+                <input type="file" id="receiptInput" accept="image/*" capture="environment" onchange="handleReceiptUpload(this)">
+                <div id="ocrStatus" class="ocr-status"></div>
+            </div>
+        </div>
+
         <div class="form-group">
             <label>👤 欠款朋友</label>
             <select id="debtorSelect">
@@ -137,19 +176,25 @@
         </div>
         <div class="form-group">
             <label>📅 日期</label>
-            <input type="date" id="debtDate" value="2026-07-15">
+            <input type="date" id="debtDate">
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label>🏪 餐廳</label>
+                <input type="text" id="debtRestaurant" placeholder="吉野家">
+            </div>
+            <div class="form-group">
+                <label>🍜 食物</label>
+                <input type="text" id="debtFood" placeholder="牛肉飯">
+            </div>
         </div>
         <div class="form-group">
-            <label>🏪 餐廳</label>
-            <input type="text" id="debtRestaurant" placeholder="吉野家" value="吉野家">
-        </div>
-        <div class="form-group">
-            <label>📝 項目</label>
-            <input type="text" id="debtItem" placeholder="牛肉飯、可樂" value="牛肉飯、可樂">
+            <label>🥤 飲品</label>
+            <input type="text" id="debtDrink" placeholder="可樂">
         </div>
         <div class="form-group">
             <label>💰 金額</label>
-            <input type="number" id="debtAmount" placeholder="65.00" value="65.00" step="0.5">
+            <input type="number" id="debtAmount" placeholder="65.00" step="0.5">
         </div>
         <button class="btn btn-success" onclick="addDebt()">✅ 新增記錄</button>
     </div>
@@ -167,15 +212,13 @@
         </div>
         <div class="form-group mt-16 admin-only">
             <label>➕ 新增朋友</label>
-            <div class="row">
-                <div class="form-group"><input type="text" placeholder="姓名" id="newFriendName"></div>
-            </div>
-            <button class="btn btn-primary" onclick="alert('模擬新增朋友')">新增</button>
+            <input type="text" id="newFriendName" placeholder="姓名">
+            <button class="btn btn-primary mt-8" onclick="addFriend()">新增</button>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- 付款方式彈窗 -->
+    <!-- 付款方式 Modal -->
     <!-- ============================================================ -->
     <div class="modal" id="paymentModal">
         <div class="modal-content">
@@ -187,26 +230,40 @@
         </div>
     </div>
 
+    <!-- 收據預覽 Modal -->
+    <div class="modal" id="receiptModal">
+        <div class="modal-content">
+            <h3>🖼️ 收據圖片</h3>
+            <img id="receiptFullImage" src="" style="width:100%; border-radius:8px;">
+            <button class="btn btn-primary close-btn mt-8" onclick="closeReceiptModal()">關閉</button>
+        </div>
+    </div>
+
 </div>
 
 <script>
     // ============================================================
-    //  管理模式密碼
+    //  密碼及模式
     // ============================================================
     const ADMIN_PASSWORD = 'Winnie';
     let isWinnieMode = false;
 
     // ============================================================
-    //  模擬數據（欠款記錄）
+    //  資料（模擬）
     // ============================================================
+    let friends = ['Peter', 'Mary', 'John', 'Winnie'];
     let debts = [
-        { id: 1, name: 'Peter', date: '2026-07-10', restaurant: '吉野家', item: '牛肉飯、可樂', amount: 65.00, paid: false },
-        { id: 2, name: 'Peter', date: '2026-07-12', restaurant: '大家樂', item: '焗豬扒飯', amount: 48.00, paid: true },
-        { id: 3, name: 'Mary', date: '2026-07-11', restaurant: '麥當勞', item: '巨無霸餐', amount: 42.50, paid: false },
-        { id: 4, name: 'John', date: '2026-07-09', restaurant: '翠華', item: '咖哩牛腩飯', amount: 58.00, paid: false },
-        { id: 5, name: 'Winnie', date: '2026-07-08', restaurant: '茶木', item: '牛肉麵', amount: 72.00, paid: true },
+        { id: 1, name: 'Peter', date: '2026-07-10', restaurant: '吉野家', food: '牛肉飯', drink: '可樂', amount: 65.00, paid: false, receipt: null },
+        { id: 2, name: 'Peter', date: '2026-07-12', restaurant: '大家樂', food: '焗豬扒飯', drink: '熱奶茶', amount: 48.00, paid: true, receipt: null },
+        { id: 3, name: 'Mary', date: '2026-07-11', restaurant: '麥當勞', food: '巨無霸餐', drink: '可樂', amount: 42.50, paid: false, receipt: null },
+        { id: 4, name: 'John', date: '2026-07-09', restaurant: '翠華', food: '咖哩牛腩飯', drink: '檸檬茶', amount: 58.00, paid: false, receipt: null },
+        { id: 5, name: 'Winnie', date: '2026-07-08', restaurant: '茶木', food: '牛肉麵', drink: '珍珠奶茶', amount: 72.00, paid: true, receipt: null },
+        // 額外加入一些最近7天的記錄
+        { id: 6, name: 'Peter', date: '2026-07-14', restaurant: '肯德基', food: '炸雞餐', drink: '汽水', amount: 55.00, paid: false, receipt: null },
+        { id: 7, name: 'Mary', date: '2026-07-13', restaurant: '必勝客', food: 'Pizza', drink: '可樂', amount: 80.00, paid: false, receipt: null },
     ];
-    let nextId = 6;
+    let nextId = 8;
+    let currentFilter = 'unpaid'; // 'all', 'unpaid', 'paid'
 
     // ============================================================
     //  切換管理模式
@@ -240,19 +297,21 @@
             status.textContent = '關';
             status.className = 'status off';
         }
-        // 顯示/隱藏管理員功能
-        document.querySelectorAll('.admin-only').forEach(el => el.style.display = isWinnieMode ? '' : 'none');
-        // 如果管理模式關閉，強制切換到「欠款記錄」tab
-        if (!isWinnieMode) {
-            const addTab = document.querySelector('.tab-btn[data-tab="tab-add"]');
-            addTab.classList.add('hidden-tab');
-            if (document.getElementById('tab-add').classList.contains('active')) {
-                switchTab('tab-record');
-            }
+        // 管理員專用功能（新增欠款 tab）
+        const addTabBtn = document.querySelector('.tab-btn[data-tab="tab-add"]');
+        if (isWinnieMode) {
+            addTabBtn.classList.remove('hidden-tab');
         } else {
-            document.querySelector('.tab-btn[data-tab="tab-add"]').classList.remove('hidden-tab');
+            addTabBtn.classList.add('hidden-tab');
+            // 如果目前是新增 tab，切回記錄
+            if (document.getElementById('tab-add').classList.contains('active')) {
+                switchTab('tab-records');
+            }
         }
-        renderRecords();
+        // 朋友管理中的新增表單
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = isWinnieMode ? '' : 'none');
+        // 重新整理記錄
+        applyFilters();
     }
 
     // ============================================================
@@ -270,28 +329,40 @@
     }
 
     // ============================================================
-    //  顯示欠款記錄（最近 7 天）
+    //  篩選邏輯
     // ============================================================
-    function renderRecords() {
-        const selected = document.getElementById('friendSelect').value;
-        const container = document.getElementById('recordList');
+    function setFilter(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        applyFilters();
+    }
 
-        // 過濾該朋友嘅記錄，並按日期排序（最新優先）
+    function applyFilters() {
+        const selectedFriend = document.getElementById('friendFilter').value;
         const now = new Date();
         const sevenDaysAgo = new Date(now);
         sevenDaysAgo.setDate(now.getDate() - 7);
 
-        let filtered = debts.filter(d => d.name === selected);
-        // 只顯示最近 7 天（包括今天）
-        filtered = filtered.filter(d => {
+        let filtered = debts.filter(d => {
+            // 日期篩選（最近7天）
             const dDate = new Date(d.date);
-            return dDate >= sevenDaysAgo && dDate <= now;
+            if (dDate < sevenDaysAgo || dDate > now) return false;
+            // 朋友篩選
+            if (selectedFriend !== 'all' && d.name !== selectedFriend) return false;
+            // 狀態篩選
+            if (currentFilter === 'paid' && !d.paid) return false;
+            if (currentFilter === 'unpaid' && d.paid) return false;
+            return true;
         });
-        // 按日期排序（最新在前）
+
+        // 排序：最新日期在前
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+        const container = document.getElementById('recordList');
         if (filtered.length === 0) {
-            container.innerHTML = '<p class="text-muted">過去 7 日冇欠款記錄</p>';
+            container.innerHTML = '<p class="text-muted">沒有符合條件的記錄</p>';
             return;
         }
 
@@ -299,6 +370,7 @@
         filtered.forEach(d => {
             const statusClass = d.paid ? 'paid' : 'unpaid';
             const statusText = d.paid ? '已付 ✔️' : '未付 ⏳';
+            const receiptHtml = d.receipt ? `<span class="receipt-link" onclick="viewReceipt('${d.receipt}')">🖼️ 收據</span>` : '';
             html += `
                 <div class="record-card">
                     <div class="record-header">
@@ -306,13 +378,18 @@
                         <span class="date">${d.date}</span>
                     </div>
                     <div class="record-body">
-                        <div>📝 ${d.item}</div>
-                        <div>💰 $${d.amount.toFixed(2)} <span class="status-badge ${statusClass}">${statusText}</span></div>
+                        <div class="detail-row"><span>🍜 ${d.food}</span><span>🥤 ${d.drink || '—'}</span></div>
+                        <div class="detail-row">
+                            <span>💰 $${d.amount.toFixed(2)}</span>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
                     </div>
                     <div class="record-footer">
-                        <button class="btn btn-outline btn-sm" onclick="showPaymentModal()">💳 付款方式</button>
-                        <button class="btn btn-success btn-sm" onclick="sendWhatsApp('${d.name}', ${d.amount})">💬 WhatsApp</button>
+                        ${receiptHtml}
+                        <button class="btn btn-outline btn-sm" onclick="showPaymentModal()" ${d.paid ? 'disabled' : ''}>💳 付款方式</button>
+                        <button class="btn btn-success btn-sm" onclick="sendWhatsApp('${d.name}', ${d.amount})" ${d.paid ? 'disabled' : ''}>💬 WhatsApp</button>
                         ${isWinnieMode ? `<button class="btn btn-primary btn-sm" onclick="togglePaid(${d.id})">${d.paid ? '↩️ 標記未付' : '✅ 標記已付'}</button>` : ''}
+                        ${isWinnieMode ? `<button class="btn btn-danger btn-sm" onclick="deleteDebt(${d.id})">🗑️</button>` : ''}
                     </div>
                 </div>
             `;
@@ -321,18 +398,27 @@
     }
 
     // ============================================================
-    //  切換付款狀態（管理模式）
+    //  標記已付/未付（管理模式）
     // ============================================================
     function togglePaid(id) {
         const debt = debts.find(d => d.id === id);
         if (debt) {
             debt.paid = !debt.paid;
-            renderRecords();
+            applyFilters();
         }
     }
 
     // ============================================================
-    //  新增欠款（管理模式）
+    //  刪除記錄（管理模式）
+    // ============================================================
+    function deleteDebt(id) {
+        if (!confirm('確定刪除此記錄？')) return;
+        debts = debts.filter(d => d.id !== id);
+        applyFilters();
+    }
+
+    // ============================================================
+    //  新增欠款（管理模式 + OCR）
     // ============================================================
     function addDebt() {
         if (!isWinnieMode) {
@@ -342,35 +428,188 @@
         const name = document.getElementById('debtorSelect').value;
         const date = document.getElementById('debtDate').value;
         const restaurant = document.getElementById('debtRestaurant').value.trim();
-        const item = document.getElementById('debtItem').value.trim();
+        const food = document.getElementById('debtFood').value.trim();
+        const drink = document.getElementById('debtDrink').value.trim();
         const amount = parseFloat(document.getElementById('debtAmount').value);
 
-        if (!date || !restaurant || !item || isNaN(amount) || amount <= 0) {
-            alert('請完整填寫所有欄位');
+        if (!date || !restaurant || !food || isNaN(amount) || amount <= 0) {
+            alert('請填寫完整資料（日期、餐廳、食物、金額）');
             return;
         }
 
+        // 有冇收據圖片？
+        const fileInput = document.getElementById('receiptInput');
+        let receiptData = null;
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                receiptData = e.target.result;
+                saveDebt(name, date, restaurant, food, drink, amount, receiptData);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            saveDebt(name, date, restaurant, food, drink, amount, null);
+        }
+    }
+
+    function saveDebt(name, date, restaurant, food, drink, amount, receipt) {
         debts.push({
             id: nextId++,
             name: name,
             date: date,
             restaurant: restaurant,
-            item: item,
+            food: food,
+            drink: drink,
             amount: amount,
-            paid: false
+            paid: false,
+            receipt: receipt
         });
-
         alert('✅ 已新增欠款記錄');
-        // 清空表單（可選）
-        document.getElementById('debtDate').value = new Date().toISOString().split('T')[0];
+        // 清空表單
+        document.getElementById('debtDate').value = '';
         document.getElementById('debtRestaurant').value = '';
-        document.getElementById('debtItem').value = '';
+        document.getElementById('debtFood').value = '';
+        document.getElementById('debtDrink').value = '';
         document.getElementById('debtAmount').value = '';
-        renderRecords();
+        document.getElementById('receiptInput').value = '';
+        document.getElementById('receiptPreview').style.display = 'none';
+        document.getElementById('ocrStatus').textContent = '';
+        applyFilters();
     }
 
     // ============================================================
-    //  付款方式彈窗
+    //  OCR 處理（使用 Tesseract.js）
+    // ============================================================
+    async function handleReceiptUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const imgData = e.target.result;
+            const preview = document.getElementById('receiptPreview');
+            preview.src = imgData;
+            preview.style.display = 'block';
+            document.getElementById('ocrStatus').textContent = '🔍 辨識中...';
+
+            try {
+                const result = await Tesseract.recognize(imgData, 'chi_sim+eng');
+                const text = result.data.text;
+                document.getElementById('ocrStatus').textContent = '✅ 辨識完成，已自動填入（可修改）';
+                parseOcrResult(text);
+            } catch (err) {
+                document.getElementById('ocrStatus').textContent = '❌ 辨識失敗，請手動輸入';
+                console.error(err);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function parseOcrResult(text) {
+        // 簡單解析：嘗試搵日期、餐廳、食物、金額
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        // 搵日期 (YYYY-MM-DD 或 DD/MM/YYYY 或類似)
+        let dateMatch = text.match(/(\d{4}[-/]\d{1,2}[-/]\d{1,2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})/);
+        if (dateMatch) {
+            let dateStr = dateMatch[0];
+            // 轉換為 YYYY-MM-DD
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts[0].length === 4) dateStr = `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
+                else dateStr = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+            }
+            document.getElementById('debtDate').value = dateStr;
+        } else {
+            // 預設今日
+            document.getElementById('debtDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        // 搵餐廳（通常係店名，嘗試搵幾個常見字）
+        const restaurantKeywords = ['餐廳', '飯店', '館', '店', '大家樂', '大快活', '吉野家', '麥當勞', '肯德基', '必勝客', '翠華', '茶木', '一蘭', '譚仔', '南記'];
+        let restaurant = '';
+        for (let kw of restaurantKeywords) {
+            if (text.includes(kw)) {
+                restaurant = kw;
+                break;
+            }
+        }
+        if (restaurant) document.getElementById('debtRestaurant').value = restaurant;
+
+        // 搵食物（嘗試搵常見食物字眼）
+        const foodKeywords = ['飯', '麵', '餐', '扒', '雞', '牛', '豬', '魚', '蝦', '蛋', '湯', '沙律', '包', '餅', '粉'];
+        let food = '';
+        for (let line of lines) {
+            for (let kw of foodKeywords) {
+                if (line.includes(kw) && !line.includes('$') && !line.match(/\d/)) {
+                    food = line;
+                    break;
+                }
+            }
+            if (food) break;
+        }
+        if (food) document.getElementById('debtFood').value = food;
+
+        // 搵金額（總金額）
+        let amountMatch = text.match(/(?:總|合計|total|TOTAL|金額|amount)[\s:]*\$?(\d+\.?\d*)/i);
+        if (amountMatch) {
+            document.getElementById('debtAmount').value = amountMatch[1];
+        } else {
+            // 搵最後一個數字（可能係總金額）
+            let nums = text.match(/\d+\.?\d*/g);
+            if (nums && nums.length > 0) {
+                let lastNum = parseFloat(nums[nums.length-1]);
+                if (lastNum > 0) document.getElementById('debtAmount').value = lastNum.toFixed(2);
+            }
+        }
+    }
+
+    // ============================================================
+    //  朋友管理
+    // ============================================================
+    function addFriend() {
+        if (!isWinnieMode) {
+            alert('請先開啟管理模式');
+            return;
+        }
+        const name = document.getElementById('newFriendName').value.trim();
+        if (!name) return alert('請輸入姓名');
+        if (friends.includes(name)) return alert('朋友已存在');
+        friends.push(name);
+        // 更新下拉選單
+        const select = document.getElementById('friendFilter');
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+        const debtorSelect = document.getElementById('debtorSelect');
+        const opt2 = document.createElement('option');
+        opt2.value = name;
+        opt2.textContent = name;
+        debtorSelect.appendChild(opt2);
+        document.getElementById('newFriendName').value = '';
+        // 更新朋友列表
+        renderFriends();
+        alert('✅ 已新增朋友');
+    }
+
+    function renderFriends() {
+        const container = document.getElementById('friendList');
+        container.innerHTML = friends.map(f => `<div class="record-card"><span>${f}</span></div>`).join('');
+    }
+
+    // ============================================================
+    //  收據檢視與下載
+    // ============================================================
+    function viewReceipt(dataUrl) {
+        document.getElementById('receiptFullImage').src = dataUrl;
+        document.getElementById('receiptModal').style.display = 'flex';
+    }
+
+    function closeReceiptModal() {
+        document.getElementById('receiptModal').style.display = 'none';
+    }
+
+    // ============================================================
+    //  付款方式 Modal
     // ============================================================
     function showPaymentModal() {
         document.getElementById('paymentModal').style.display = 'flex';
@@ -397,11 +636,18 @@
     //  初始化
     // ============================================================
     window.onload = function() {
-        updateModeUI();
-        renderRecords();
-        // 點擊 modal 外部關閉
+        // 設定今日日期
+        document.getElementById('debtDate').value = new Date().toISOString().split('T')[0];
+        renderFriends();
+        updateModeUI(); // 預設關閉，會隱藏新增 tab
+        applyFilters(); // 顯示記錄
+
+        // Modal 點擊外部關閉
         document.getElementById('paymentModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
+        });
+        document.getElementById('receiptModal').addEventListener('click', function(e) {
+            if (e.target === this) closeReceiptModal();
         });
     };
 </script>
